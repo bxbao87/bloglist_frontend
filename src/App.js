@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import FormElement from './components/FormElement'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -10,6 +11,10 @@ const App = () => {
   const [username, setUsername] = useState([])
   const [password, setPassword] = useState([])
   const [user, setUser] = useState(null)
+
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -22,6 +27,7 @@ const App = () => {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
+      blogService.setToken(user.token)
     }
   }, [])
 
@@ -37,6 +43,7 @@ const App = () => {
         loggedKey, JSON.stringify(user)
       )
 
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
@@ -49,24 +56,20 @@ const App = () => {
     <div>
       <h2>log in to application</h2>
       <form onSubmit={handleLogin}>
-        <div>
-          username
-          <input
+        <FormElement 
+            content="username" 
             name="Username"
             type="text"
             value={username}
-            onChange={({ target }) => setUsername(target.value)}
-          />
-        </div>
-        <div>
-          password
-          <input
+            onChange={setUsername}
+        />
+        <FormElement 
+            content="password"
             name="Password"
             type="password"
             value={password}
-            onChange={({ target }) => setPassword(target.value)}
+            onChange={setPassword}
           />
-        </div>
         <button type="submit">login</button>
       </form>
     </div>
@@ -79,7 +82,59 @@ const App = () => {
   const handleLogout = (event) => {
     window.localStorage.removeItem(loggedKey)
     setUser(null)
+    blogService.setToken(null)
   }
+
+  const handleCreateBlog = async (event) => {
+    event.preventDefault()
+
+    const newBlog = {
+      title,
+      author,
+      url
+    }
+    
+    try {
+      let addedBlog = await blogService.addBlog(newBlog)
+      setBlogs(blogs.concat(addedBlog))
+      setTitle('')
+      setAuthor('')
+      setUrl('')
+    } catch(exception) {
+      console.error(exception)
+    }
+  }
+
+
+  const blogForm = () => (
+    <div>
+      <h2>create new</h2>
+      <form onSubmit={handleCreateBlog}>
+        <FormElement
+          content="title:"
+          name="title"
+          type="text"
+          value={title}
+          onChange={setTitle}
+        />
+        <FormElement
+          content="author:"
+          name="author"
+          type="text"
+          value={author}
+          onChange={setAuthor}
+        />
+        <FormElement
+          content="url:"
+          name="title"
+          type="text"
+          value={url}
+          onChange={setUrl}
+        />
+        <button type="submit">create</button>
+      </form>
+    </div>
+  )
 
   return (
     <div>
@@ -87,6 +142,8 @@ const App = () => {
       <p>
         {user.name} logged in <button onClick={handleLogout}>logout</button>
       </p>
+
+      {blogForm()}
 
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
