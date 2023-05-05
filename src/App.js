@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
+
 import Blog from './components/Blog'
 import FormElement from './components/FormElement'
+import Notification from './components/Notification'
+
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -16,6 +19,8 @@ const App = () => {
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
 
+  const [noti, setNoti] = useState(null)
+
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
@@ -30,6 +35,13 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
+
+  const displayNoti = (message, type) => {
+    setNoti({message, type})
+    setTimeout(() => {
+      setNoti(null)
+    }, 5000)
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -48,13 +60,14 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch(exception) {
-      console.error(exception)
+      displayNoti(exception.response.data.error, 'error')
     }
   }
 
   const loginForm = () => (
     <div>
       <h2>log in to application</h2>
+      <Notification info={noti}/>
       <form onSubmit={handleLogin}>
         <FormElement 
             content="username" 
@@ -74,10 +87,6 @@ const App = () => {
       </form>
     </div>
   )
-
-  if (user === null) {
-    return loginForm()
-  }
 
   const handleLogout = (event) => {
     window.localStorage.removeItem(loggedKey)
@@ -100,11 +109,11 @@ const App = () => {
       setTitle('')
       setAuthor('')
       setUrl('')
+      displayNoti(`a new blog ${addedBlog.title} by ${addedBlog.author} added`, 'info')
     } catch(exception) {
-      console.error(exception)
+      displayNoti(exception.response.data.error, 'error')
     }
   }
-
 
   const blogForm = () => (
     <div>
@@ -136,9 +145,10 @@ const App = () => {
     </div>
   )
 
-  return (
+  const blogPage = () => (
     <div>
       <h2>blogs</h2>
+      <Notification info={noti}/>
       <p>
         {user.name} logged in <button onClick={handleLogout}>logout</button>
       </p>
@@ -148,6 +158,15 @@ const App = () => {
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
+    </div>
+  )
+
+  return (
+    <div>
+      { user === null 
+          ? loginForm()
+          : blogPage()
+      }
     </div>
   )
 }
