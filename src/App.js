@@ -4,6 +4,7 @@ import Blog from './components/Blog'
 import FormElement from './components/FormElement'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -15,10 +16,6 @@ const App = () => {
   const [username, setUsername] = useState([])
   const [password, setPassword] = useState([])
   const [user, setUser] = useState(null)
-
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
 
   const [noti, setNoti] = useState(null)
 
@@ -95,56 +92,18 @@ const App = () => {
     blogService.setToken(null)
   }
 
-  const handleCreateBlog = async (event) => {
-    event.preventDefault()
-
-    const newBlog = {
-      title,
-      author,
-      url
-    }
-    
+  const addBlog = async (newBlog) => {
     try {
       let addedBlog = await blogService.addBlog(newBlog)
       setBlogs(blogs.concat(addedBlog))
-      setTitle('')
-      setAuthor('')
-      setUrl('')
       displayNoti(`a new blog ${addedBlog.title} by ${addedBlog.author} added`, 'info')
     } catch(exception) {
       displayNoti(exception.response.data.error, 'error')
+      return false
     }
-  }
 
-  const blogForm = () => (
-    <div>
-      <h2>create new</h2>
-      <form onSubmit={handleCreateBlog}>
-        <FormElement
-          content="title:"
-          name="title"
-          type="text"
-          value={title}
-          onChange={setTitle}
-        />
-        <FormElement
-          content="author:"
-          name="author"
-          type="text"
-          value={author}
-          onChange={setAuthor}
-        />
-        <FormElement
-          content="url:"
-          name="title"
-          type="text"
-          value={url}
-          onChange={setUrl}
-        />
-        <button type="submit">create</button>
-      </form>
-    </div>
-  )
+    return true
+  }
 
   const blogPage = () => (
     <div>
@@ -155,7 +114,7 @@ const App = () => {
       </p>
 
       <Togglable buttonLabel="new note">
-        {blogForm()}
+        <BlogForm createBlog={addBlog}/>
       </Togglable>
 
       
