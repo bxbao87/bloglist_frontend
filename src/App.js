@@ -112,6 +112,22 @@ const App = () => {
     }
   }
 
+  const removeBlog = async (id) => {
+    let blog = blogs.find(b => b.id === id)
+
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+
+      try {
+        await blogService.removeBlog(id)
+        let newBlogs = blogs.filter(b => b.id !== id)
+        setBlogs(newBlogs)
+
+      } catch (exception) {
+        displayNoti(exception.response.data.error, 'error')
+      }
+    }
+  }
+
   const addBlog = async (newBlog) => {
     try {
       let addedBlog = await blogService.addBlog(newBlog)
@@ -140,7 +156,7 @@ const App = () => {
       
 
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} handleLike={handleLike}/>
+        <Blog key={blog.id} blog={blog} handleLike={handleLike} handleRemove={removeBlog} username={user.username}/>
       )}
     </div>
   )
