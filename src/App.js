@@ -86,10 +86,26 @@ const App = () => {
     </div>
   )
 
-  const handleLogout = (event) => {
+  const handleLogout = () => {
     window.localStorage.removeItem(loggedKey)
     setUser(null)
     blogService.setToken(null)
+  }
+
+  const handleLike = async (id) => {
+    const blog = blogs.find(b => b.id === id)
+    const sentBlog = {
+      ...blog,
+      "likes": blog.likes + 1,
+      "user": blog.user.id
+    }
+
+    try {
+      let updatedBlog = await blogService.updateBlog(sentBlog)
+      setBlogs(blogs.map(b => b.id === id ? updatedBlog : b))
+    } catch (exception) {
+      displayNoti(exception.response.data.error, 'error')
+    }
   }
 
   const addBlog = async (newBlog) => {
@@ -120,7 +136,7 @@ const App = () => {
       
 
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} handleLike={handleLike}/>
       )}
     </div>
   )
