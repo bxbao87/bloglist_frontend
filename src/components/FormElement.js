@@ -1,5 +1,5 @@
 const FormElement = (props) => {
-    const {content, name, type, value, onChange} = props
+    const { content, name, type, value, onChange } = props
 
     return (
         <div>

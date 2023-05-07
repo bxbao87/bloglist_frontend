@@ -28,25 +28,25 @@ const BlogForm = ({ createBlog }) => {
             <h2>create new</h2>
             <form onSubmit={handleCreateBlog}>
                 <FormElement
-                content="title:"
-                name="title"
-                type="text"
-                value={title}
-                onChange={setTitle}
+                    content="title:"
+                    name="title"
+                    type="text"
+                    value={title}
+                    onChange={setTitle}
                 />
                 <FormElement
-                content="author:"
-                name="author"
-                type="text"
-                value={author}
-                onChange={setAuthor}
+                    content="author:"
+                    name="author"
+                    type="text"
+                    value={author}
+                    onChange={setAuthor}
                 />
                 <FormElement
-                content="url:"
-                name="title"
-                type="text"
-                value={url}
-                onChange={setUrl}
+                    content="url:"
+                    name="title"
+                    type="text"
+                    value={url}
+                    onChange={setUrl}
                 />
                 <button type="submit">create</button>
             </form>
