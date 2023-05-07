@@ -19,9 +19,11 @@ const App = () => {
 
   const [noti, setNoti] = useState(null)
 
+  const blogComparator = (a,b) => b.likes - a.likes
+
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+      setBlogs(blogs.sort(blogComparator))
     )  
   }, [])
 
@@ -102,7 +104,9 @@ const App = () => {
 
     try {
       let updatedBlog = await blogService.updateBlog(sentBlog)
-      setBlogs(blogs.map(b => b.id === id ? updatedBlog : b))
+      let newBlogs = blogs.map(b => b.id === id ? updatedBlog : b)
+      newBlogs.sort(blogComparator)
+      setBlogs(newBlogs)
     } catch (exception) {
       displayNoti(exception.response.data.error, 'error')
     }
